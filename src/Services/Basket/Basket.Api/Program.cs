@@ -1,3 +1,6 @@
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
@@ -29,11 +32,20 @@ builder.Services.AddSingleton<CustomExceptionHandler>(); // instead of: builder.
 
 builder.Logging.AddFilter("Npgsql", LogLevel.Warning); // set Npgsql to warning
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("Database")!)
+    .AddRedis(builder.Configuration.GetConnectionString("Redis")!);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapCarter();
 
 app.UseMiddleware<CustomExceptionMiddleware>(); // instead of: app.UseExceptionHandler(options => { });
+app.UseHealthChecks("/health",
+    new HealthCheckOptions
+    {
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
 
 app.Run();
