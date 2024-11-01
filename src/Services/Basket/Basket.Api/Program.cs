@@ -10,7 +10,6 @@ builder.Services.AddMediatR(config =>
     config.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

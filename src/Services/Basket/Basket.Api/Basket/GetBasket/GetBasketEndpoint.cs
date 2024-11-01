@@ -1,8 +1,8 @@
 ﻿namespace Basket.Api.Basket.GetBasket
 {
-    public record GetBasketRequest(string UserName);
     public record GetBasketResponse(ShoppingCart Cart);
-    public class GetBasketEndpoint : ICarterModule
+
+    public class GetBasketEndpoints : ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
@@ -10,9 +10,9 @@
             {
                 var result = await sender.Send(new GetBasketQuery(userName));
 
-                var response = result.Adapt<GetBasketResponse>();
+                var respose = result.Adapt<GetBasketResponse>();
 
-                return Results.Ok(response);
+                return Results.Ok(respose);
             })
             .WithName("GetProductById")
             .Produces<GetBasketResponse>(StatusCodes.Status200OK)
