@@ -17,11 +17,11 @@ namespace Basket.Api.Basket.StoreBasket
 
             return Results.Created($"/basket/{response.UserName}", response);
         })
-        .WithName("CreateProduct")
+        .WithName("StoreUserBasket")
         .Produces<StoreBasketResponse>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest)
-        .WithSummary("Create Product")
-        .WithDescription("Create Product");
+        .WithSummary("Store User Basket")
+        .WithDescription("Creates or updates the shopping basket for the specified user.");
     }
 }
 }
