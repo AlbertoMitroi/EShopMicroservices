@@ -4,6 +4,20 @@
 name: .NET
 
 on:
+  workflow_dispatch:
+    inputs:
+      buildConfiguration:
+        description: 'Build configuration (e.g., Debug or Release)'
+        required: true
+        default: 'Release'
+      dotnetVersion:
+        description: 'Version of .NET SDK to use'
+        required: true
+        default: '8.0.x'
+      solution:
+        description: 'Path to solution.'
+        required: true
+        default: './src/eshop-microservices.sln'
   push:
     branches: [ "main" ]
   pull_request:
@@ -19,10 +33,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: ${{ github.event.inputs.dotnetVersion }}
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ${{ github.event.inputs.solution }}
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --configuration ${{ github.event.inputs.buildConfiguration }} --no-restore ${{ github.event.inputs.solution }} 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --configuration ${{ github.event.inputs.buildConfiguration }} --no-build --verbosity normal ${{ github.event.inputs.solution }}
