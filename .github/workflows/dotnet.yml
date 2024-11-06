@@ -22,12 +22,9 @@ jobs:
 
     - name: Restore dependencies
       run: dotnet restore ${{ vars.SOLUTION_PATH }}
-      working-directory: ./src  # Adjust this if the solution file is in ./src
 
     - name: Build
       run: dotnet build ${{ vars.SOLUTION_PATH }} --configuration ${{ vars.DOTNET_CONFIGURATION }} --no-restore
-      working-directory: ./src  # Adjust this if necessary
 
     - name: Test
       run: dotnet test ${{ vars.SOLUTION_PATH }} --configuration ${{ vars.DOTNET_CONFIGURATION }} --no-build --verbosity normal
-      working-directory: ./src  # Adjust this if necessary
