@@ -4,7 +4,7 @@
     {
         internal OrderItem(OrderId orderId, ProductId productId, int quantity, decimal price)
         {
-            Id = OrderItemId.of(Guid.NewGuid());
+            Id = OrderItemId.Of(Guid.NewGuid());
             OrderId = orderId;
             ProductId = productId;
             Quantity = quantity;
