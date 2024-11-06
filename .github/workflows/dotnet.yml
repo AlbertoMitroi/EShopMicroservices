@@ -25,18 +25,21 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ github.event.inputs.dotnetVersion }}
+
     - name: Restore dependencies
       run: dotnet restore ${{ github.event.inputs.solution }}
+
     - name: Build
-      run: dotnet build --configuration ${{ github.event.inputs.buildConfiguration }} --no-restore ${{ github.event.inputs.solution }} 
+      run: dotnet build ${{ github.event.inputs.solution }} --configuration ${{ github.event.inputs.buildConfiguration }} --no-restore
+
     - name: Test
-      run: dotnet test --configuration ${{ github.event.inputs.buildConfiguration }} --no-build --verbosity normal ${{ github.event.inputs.solution }}
+      run: dotnet test ${{ github.event.inputs.solution }} --configuration ${{ github.event.inputs.buildConfiguration }} --no-build --verbosity normal
