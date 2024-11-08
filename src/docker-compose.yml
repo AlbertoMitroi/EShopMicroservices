@@ -10,6 +10,9 @@ services:
   distributedcache:
     image: redis:7.4
 
+  orderdb:
+    image: mcr.microsoft.com/mssql/server:2022-CU15-GDR1-ubuntu-22.04
+
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
     build:
@@ -31,3 +34,4 @@ services:
 volumes:
   postgres_catalog:
   postgres_basket:
+  mssql_order:  
