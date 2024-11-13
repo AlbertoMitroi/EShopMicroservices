@@ -14,7 +14,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-CU15-GDR1-ubuntu-22.04
 
   messagebroker:
-    image: rabbitmq:management
+    image: rabbitmq:4.0-management
 
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
@@ -46,8 +46,13 @@ services:
       context: .
       dockerfile: ApiGateways/YarpApiGateway/Dockerfile
 
+  shopping.web:
+    image: ${DOCKER_REGISTRY-}shoppingweb
+    build:
+      context: .
+      dockerfile: WebApps/Shopping.Web/Dockerfile
+
 volumes:
   postgres_catalog:
   postgres_basket:
   mssql_order:  
-
