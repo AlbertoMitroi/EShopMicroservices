@@ -3,6 +3,7 @@ using Moq;
 using Ordering.Application.Data;
 using Ordering.Application.Orders.Commands.CreateOrder;
 using Ordering.Domain.Models;
+using Ordering.Shared;
 
 namespace Ordering.Application.UnitTests.Orders.Commands.CreateOrder
 {
@@ -21,7 +22,7 @@ namespace Ordering.Application.UnitTests.Orders.Commands.CreateOrder
         public async Task Handle_WithValidOrder_CreatesOrderAndReturnsOrderId()
         {
             // Arrange
-            var orderDto = HelperMethods.GetValidOrderDto();
+            var orderDto = HelperClass.GetValidOrderDto();
             var command = new CreateOrderCommand(orderDto);
 
             _mockDbContext.Setup(db => db.Orders.Add(It.IsAny<Order>()));
