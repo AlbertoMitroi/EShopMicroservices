@@ -9,7 +9,7 @@ on:
 env:
   DOTNET_VERSION: 8.0.205
   SOLUTION_PATH: "./src/eshop-microservices.sln"
-  DOTNET_CONFIGURATION: "Development"
+  DOTNET_CONFIGURATION: "Release"
 
 jobs:
   linux-build:
