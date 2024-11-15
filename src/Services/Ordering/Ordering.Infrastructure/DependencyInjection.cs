@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.Data;
+using Ordering.Infrastructure.Data.Repositories;
 
 namespace Ordering.Infrastructure
 {
@@ -15,6 +16,7 @@ namespace Ordering.Infrastructure
             // Add services to the container.
             services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
             services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
 
             services.AddDbContext<ApplicationDbContext>((sp, options) =>
             {

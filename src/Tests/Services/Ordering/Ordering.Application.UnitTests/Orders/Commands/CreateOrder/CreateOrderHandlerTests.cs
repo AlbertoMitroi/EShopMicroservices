@@ -1,7 +1,10 @@
 ﻿using FluentAssertions;
+using Mapster;
 using Moq;
 using Ordering.Application.Data;
+using Ordering.Application.Dtos;
 using Ordering.Application.Orders.Commands.CreateOrder;
+using Ordering.Domain.Abstractions;
 using Ordering.Domain.Models;
 using Ordering.Shared;
 
@@ -9,13 +12,13 @@ namespace Ordering.Application.UnitTests.Orders.Commands.CreateOrder
 {
     public class CreateOrderHandlerTests
     {
-        private readonly Mock<IApplicationDbContext> _mockDbContext;
+        private readonly Mock<IOrderRepository> _mockRepository;
         private readonly CreateOrderHandler _handler;
 
         public CreateOrderHandlerTests()
         {
-            _mockDbContext = new Mock<IApplicationDbContext>();
-            _handler = new CreateOrderHandler(_mockDbContext.Object);
+            _mockRepository = new Mock<IOrderRepository>();
+            _handler = new CreateOrderHandler(_mockRepository.Object);
         }
 
         [Fact]
@@ -25,9 +28,10 @@ namespace Ordering.Application.UnitTests.Orders.Commands.CreateOrder
             var orderDto = HelperClass.GetValidOrderDto();
             var command = new CreateOrderCommand(orderDto);
 
-            _mockDbContext.Setup(db => db.Orders.Add(It.IsAny<Order>()));
-            _mockDbContext.Setup(db => db.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(1);
+            _mockRepository.Setup(repo => repo.AddAsync(It.Is<Order>(o => o.OrderName.Value == orderDto.OrderName), default))
+                .Returns(Task.CompletedTask);
+            _mockRepository.Setup(repo => repo.SaveAsync(default))
+                .Returns(Task.CompletedTask);
 
             // Act
             var result = await _handler.Handle(command, default);
@@ -35,8 +39,8 @@ namespace Ordering.Application.UnitTests.Orders.Commands.CreateOrder
             // Assert
             result.Should().NotBeNull();
             result.Should().BeOfType<CreateOrderResult>();
-            _mockDbContext.Verify(db => db.Orders.Add(It.IsAny<Order>()), Times.Once());
-            _mockDbContext.Verify(db => db.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
+            _mockRepository.Verify(repo => repo.AddAsync(It.Is<Order>(o => o.OrderName.Value == orderDto.OrderName), default), Times.Once());
+            _mockRepository.Verify(repo => repo.SaveAsync(default), Times.Once());
         }
     }
 }

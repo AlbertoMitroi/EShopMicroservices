@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Ordering.API.Endpoints;
+using Ordering.Domain.ValueObjects;
 using Ordering.Shared;
 using System.Net;
 using System.Net.Http.Json;
@@ -30,7 +31,7 @@ namespace Ordering.API.IntegrationTest
             responseBody.Should().NotBeNull();
             responseBody!.IsSuccess.Should().BeTrue();
 
-            var deletedOrder = await _context.Orders.FindAsync(orderId);
+            var deletedOrder = await _context.Orders.FindAsync(OrderId.Of(orderId));
             deletedOrder.Should().BeNull();
         }
         [Fact]
@@ -56,7 +57,7 @@ namespace Ordering.API.IntegrationTest
             var deleteResponse = await _httpClient.DeleteAsync($"/orders/{invalidOrderId}");
 
             // Assert
-            deleteResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }
