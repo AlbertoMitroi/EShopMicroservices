@@ -9,7 +9,7 @@ on:
 env:
   DOTNET_VERSION: 8.0.205
   SOLUTION_PATH: "./src/eshop-microservices.sln"
-  DOTNET_CONFIGURATION: "Development"
+  DOTNET_CONFIGURATION: "Release"
 
 jobs:
   linux-build:
@@ -34,10 +34,10 @@ jobs:
     strategy:
       matrix:
         service:
-            - { name: "Basket", context: ".", dockerfile: "./src/Services/Basket/Basket.Api/Dockerfile" }
-            - { name: "Catalog", context: ".", dockerfile: "./src/Services/Catalog/Catalog.API/Dockerfile" }
-            - { name: "Discount", context: ".", dockerfile: "./src/Services/Discount/Discount.Grpc/Dockerfile" }
-            - { name: "Microservice1", context: ".", dockerfile: "./src/Services/Ordering/Ordering.API/Dockerfile" }
+            - { name: "Basket", context: "./src", dockerfile: "./src/Services/Basket/Basket.Api/Dockerfile" }
+            - { name: "Catalog", context: "./src", dockerfile: "./src/Services/Catalog/Catalog.API/Dockerfile" }
+            - { name: "Discount", context: "./src", dockerfile: "./src/Services/Discount/Discount.Grpc/Dockerfile" }
+            - { name: "Microservice1", context: "./src", dockerfile: "./src/Services/Ordering/Ordering.API/Dockerfile" }
 
     steps:
     - name: Checkout Repository Code
