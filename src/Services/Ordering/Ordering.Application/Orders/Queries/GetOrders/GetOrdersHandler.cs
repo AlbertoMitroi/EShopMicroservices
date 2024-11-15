@@ -1,8 +1,9 @@
 ﻿using BuildingBlocks.Pagination;
+using Ordering.Domain.Abstractions;
 
 namespace Ordering.Application.Orders.Queries.GetOrders
 {
-    public class GetOrdersHandler(IApplicationDbContext dbContext)
+    public class GetOrdersHandler(IOrderRepository repository)
     : IQueryHandler<GetOrdersQuery, GetOrdersResult>
     {
         public async Task<GetOrdersResult> Handle(GetOrdersQuery query, CancellationToken cancellationToken)
@@ -10,14 +11,9 @@ namespace Ordering.Application.Orders.Queries.GetOrders
             var pageIndex = query.PaginationRequest.PageIndex;
             var pageSize = query.PaginationRequest.PageSize;
 
-            var totalCount = await dbContext.Orders.LongCountAsync(cancellationToken);
+            var totalCount = await repository.GetCountAsync(cancellationToken);
 
-            var orders = await dbContext.Orders
-                           .Include(o => o.OrderItems)
-                           .OrderBy(o => o.OrderName.Value)
-                           .Skip(pageSize * pageIndex)
-                           .Take(pageSize)
-                           .ToListAsync(cancellationToken);
+            var orders = await repository.GetPageAsync(pageIndex, pageSize, cancellationToken);
 
             return new GetOrdersResult(
                 new PaginatedResult<OrderDto>(
