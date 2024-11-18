@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  docker-build:
+  docker-build-and-push:
     runs-on: ubuntu-24.04
     env:
       REF: ${{ github.head_ref || github.ref_name }}
