@@ -120,3 +120,28 @@ jobs:
       - name: Test
         run: dotnet test ${{ matrix.service.test_project }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity ${{ env.TEST_VERBOSITY }} --collect:"Code Coverage;Format=${{ env.TEST_COVERAGE_FORMAT }};CoverageFileName=${{ env.TEST_COVERAGE_FILE }}" --results-directory ${{ env.TEST_COVERAGE_DIR }}
        
+  roslyn-analysis:
+    runs-on: ubuntu-24.04
+    needs:
+      - linux-build
+      - docker-build
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+  
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-restore
+
+      - name: Install Roslynator
+        run: dotnet tool install -g roslynator.dotnet.cli
+
+      - name: Run analysis
+        run: roslynator analyze ${{ env.SOLUTION_PATH }}
