@@ -8,27 +8,20 @@ namespace Ordering.Shared
     public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>
     {
         private readonly IServiceScope _scope;
-        protected readonly ISender Sender;
-        protected readonly ApplicationDbContext _context;
-        private readonly IntegrationTestWebAppFactory factory;
-        protected readonly HttpClient _httpClient;
+
+        protected readonly ISender _Sender;
+        protected readonly ApplicationDbContext _Context;
+        protected readonly HttpClient _HttpClient;
 
         protected BaseIntegrationTest(IntegrationTestWebAppFactory factory)
         {
             _scope = factory.Services.CreateScope();
 
-            Sender = _scope.ServiceProvider.GetRequiredService<ISender>();
+            _Sender = _scope.ServiceProvider.GetRequiredService<ISender>();
 
-            _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            _Context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            _httpClient = factory.CreateClient();
-
-            this.factory = factory;
-        }
-
-        protected IServiceScope CreateScope()
-        {
-            return factory.Services.CreateScope();
+            _HttpClient = factory.CreateClient();
         }
     }
 }
