@@ -1,13 +1,14 @@
-﻿namespace Ordering.Application.Orders.Commands.UpdateOrder
+﻿using Ordering.Domain.Abstractions;
+
+namespace Ordering.Application.Orders.Commands.UpdateOrder
 {
-    public class UpdateOrderHandler(IApplicationDbContext dbContext)
+    public class UpdateOrderHandler(IOrderRepository repository)
     : ICommandHandler<UpdateOrderCommand, UpdateOrderResult>
     {
         public async Task<UpdateOrderResult> Handle(UpdateOrderCommand command, CancellationToken cancellationToken)
         {
             var orderId = OrderId.Of(command.Order.Id);
-            var order = await dbContext.Orders
-                .FindAsync([orderId], cancellationToken: cancellationToken);
+            var order = await repository.GetByIdAsync(orderId, cancellationToken);
 
             if (order is null)
             {
@@ -16,8 +17,8 @@
 
             UpdateOrderWithNewValues(order, command.Order);
 
-            dbContext.Orders.Update(order);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            repository.Update(order);
+            await repository.SaveAsync(cancellationToken);
 
             return new UpdateOrderResult(true);
         }

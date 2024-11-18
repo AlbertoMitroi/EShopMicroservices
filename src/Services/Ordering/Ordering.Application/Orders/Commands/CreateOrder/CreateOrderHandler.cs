@@ -1,14 +1,16 @@
-﻿namespace Ordering.Application.Orders.Commands.CreateOrder
+﻿using Ordering.Domain.Abstractions;
+
+namespace Ordering.Application.Orders.Commands.CreateOrder
 {
-    public class CreateOrderHandler(IApplicationDbContext dbContext)
+    public class CreateOrderHandler(IOrderRepository repository)
         : ICommandHandler<CreateOrderCommand, CreateOrderResult>
     {
         public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
         {
             var order = CreateNewOrder(command.Order);
 
-            dbContext.Orders.Add(order);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await repository.AddAsync(order, cancellationToken);
+            await repository.SaveAsync(cancellationToken);
 
             return new CreateOrderResult(order.Id.Value);
         }
