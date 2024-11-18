@@ -10,6 +10,10 @@ env:
   DOTNET_VERSION: 8.0.205
   SOLUTION_PATH: "./src/eshop-microservices.sln"
   DOTNET_CONFIGURATION: "Release"
+  TEST_VERBOSITY: "normal"
+  TEST_COVERAGE_FORMAT: "xml"
+  TEST_COVERAGE_FILE: "coverage.xml"
+  TEST_COVERAGE_DIR: "./src/Tests/coverage"
 
 jobs:
   linux-build:
@@ -59,12 +63,11 @@ jobs:
 
   run-unit-tests:
     runs-on: ubuntu-24.04
-    env:
-      TEST_VERBOSITY: "normal"
-      TEST_PROJECT: "Roaster.UnitTests/Roaster.UnitTests.csproj"
-      TEST_COVERAGE_FORMAT: "xml"
-      TEST_COVERAGE_FILE: "coverage.xml"
-      TEST_COVERAGE_DIR: "./coverage"
+    strategy:
+      matrix:
+        service:
+            - { name: "Basket", test_project: "./src/Tests/Services/Basket/Basket.Api.UniTests/Basket.Api.UniTests.csproj" }
+            - { name: "Basket", test_project: "./src/Tests/Services/Ordering/Ordering.Application.UnitTests/Ordering.Application.UnitTests.csproj" }
     needs:
       - linux-build
       - docker-build
@@ -84,5 +87,5 @@ jobs:
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-restore
   
       - name: Test
-        run: dotnet test ${{ env.TEST_PROJECT }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity ${{ env.TEST_VERBOSITY }} --collect:"Code Coverage;Format=${{ env.TEST_COVERAGE_FORMAT }};CoverageFileName=${{ env.TEST_COVERAGE_FILE }}" --results-directory ${{ env.TEST_COVERAGE_DIR }}
+        run: dotnet test ${{ matrix.service.test_project }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity ${{ env.TEST_VERBOSITY }} --collect:"Code Coverage;Format=${{ env.TEST_COVERAGE_FORMAT }};CoverageFileName=${{ env.TEST_COVERAGE_FILE }}" --results-directory ${{ env.TEST_COVERAGE_DIR }}
   
