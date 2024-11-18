@@ -38,7 +38,6 @@ jobs:
             - { name: "Catalog", context: "./src", dockerfile: "./src/Services/Catalog/Catalog.API/Dockerfile" }
             - { name: "Discount", context: "./src", dockerfile: "./src/Services/Discount/Discount.Grpc/Dockerfile" }
             - { name: "Microservice1", context: "./src", dockerfile: "./src/Services/Ordering/Ordering.API/Dockerfile" }
-
     steps:
     - name: Checkout Repository Code
       uses: actions/checkout@v4
@@ -49,7 +48,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build and Push ${{ matrix.service.name }}
+    - name: Build ${{ matrix.service.name }}
       uses: docker/build-push-action@v6
       with:
         context: ${{ matrix.service.context }}
@@ -58,4 +57,32 @@ jobs:
         labels: ${{ github.sha }}
         platforms: linux/amd64
 
-    
+  run-unit-tests:
+    runs-on: ubuntu-24.04
+    env:
+      TEST_VERBOSITY: "normal"
+      TEST_PROJECT: "Roaster.UnitTests/Roaster.UnitTests.csproj"
+      TEST_COVERAGE_FORMAT: "xml"
+      TEST_COVERAGE_FILE: "coverage.xml"
+      TEST_COVERAGE_DIR: "./coverage"
+    needs:
+      - linux-build
+      - docker-build
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+  
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-restore
+  
+      - name: Test
+        run: dotnet test ${{ env.TEST_PROJECT }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity ${{ env.TEST_VERBOSITY }} --collect:"Code Coverage;Format=${{ env.TEST_COVERAGE_FORMAT }};CoverageFileName=${{ env.TEST_COVERAGE_FILE }}" --results-directory ${{ env.TEST_COVERAGE_DIR }}
+  
