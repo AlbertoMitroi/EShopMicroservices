@@ -6,7 +6,7 @@ namespace Ordering.Infrastructure.Data.Repositories
     {
         public async Task<IEnumerable<Order>> GetAllAsync(CancellationToken cancellationToken)
         {
-            IEnumerable<Order> orders = await _context.Orders.ToListAsync(cancellationToken);
+            IEnumerable<Order> orders = await _context.Orders.AsNoTracking().ToListAsync(cancellationToken);
 
             return orders;
         }
@@ -50,6 +50,7 @@ namespace Ordering.Infrastructure.Data.Repositories
         {
             IEnumerable<Order> orders = await _context.Orders
                             .Include(o => o.OrderItems)
+                            .AsNoTracking()
                             .OrderBy(o => o.OrderName.Value)
                             .Skip(pageSize * pageIndex)
                             .Take(pageSize)
@@ -60,7 +61,7 @@ namespace Ordering.Infrastructure.Data.Repositories
 
         public Task<long> GetCountAsync(CancellationToken cancellationToken)
         {
-            var count = _context.Orders.LongCountAsync(cancellationToken);
+            var count = _context.Orders.AsNoTracking().LongCountAsync(cancellationToken);
 
             return count;
         }
@@ -82,7 +83,10 @@ namespace Ordering.Infrastructure.Data.Repositories
 
         public async Task SaveAsync(CancellationToken cancellationToken)
         {
-            await _context.SaveChangesAsync(cancellationToken);
+            if (_context.ChangeTracker.HasChanges())
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
         }
     }
 }
