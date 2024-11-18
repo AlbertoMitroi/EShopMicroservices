@@ -16,10 +16,10 @@ namespace Ordering.API.IntegrationTests.Orders
         public async Task Handler_ShouldDelete_ExistingOrderWithGuid()
         {
             // Arrange 
-            var postOrderResult = await HelperClass.PostNewOrder(_httpClient);
+            var postOrderResult = await HelperClass.PostNewOrder(_HttpClient);
 
             // Act
-            var result = await Sender.Send(new DeleteOrderCommand(postOrderResult));
+            var result = await _Sender.Send(new DeleteOrderCommand(postOrderResult));
 
             // Assert 
             result.IsSuccess.Should().Be(true);

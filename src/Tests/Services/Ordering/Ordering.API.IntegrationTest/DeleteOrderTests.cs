@@ -18,10 +18,10 @@ namespace Ordering.API.IntegrationTest
         public async Task DeleteOrder_ShouldReturn200Ok_WhenOrderExists()
         {
             // Arrange
-            Guid orderId = await HelperClass.PostNewOrder(_httpClient);
+            Guid orderId = await HelperClass.PostNewOrder(_HttpClient);
 
             // Act
-            var deleteResponse = await _httpClient.DeleteAsync($"/orders/{orderId}");
+            var deleteResponse = await _HttpClient.DeleteAsync($"/orders/{orderId}");
             deleteResponse.EnsureSuccessStatusCode();
 
             var responseBody = await deleteResponse.Content.ReadFromJsonAsync<DeleteOrderResponse>();
@@ -31,7 +31,7 @@ namespace Ordering.API.IntegrationTest
             responseBody.Should().NotBeNull();
             responseBody!.IsSuccess.Should().BeTrue();
 
-            var deletedOrder = await _context.Orders.FindAsync(OrderId.Of(orderId));
+            var deletedOrder = await _Context.Orders.FindAsync(OrderId.Of(orderId));
             deletedOrder.Should().BeNull();
         }
         [Fact]
@@ -41,7 +41,7 @@ namespace Ordering.API.IntegrationTest
             Guid nonExistentOrderId = Guid.NewGuid();
 
             // Act
-            var deleteResponse = await _httpClient.DeleteAsync($"/orders/{nonExistentOrderId}");
+            var deleteResponse = await _HttpClient.DeleteAsync($"/orders/{nonExistentOrderId}");
 
             // Assert
             deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -54,7 +54,7 @@ namespace Ordering.API.IntegrationTest
             Guid invalidOrderId = Guid.NewGuid();
 
             // Act
-            var deleteResponse = await _httpClient.DeleteAsync($"/orders/{invalidOrderId}");
+            var deleteResponse = await _HttpClient.DeleteAsync($"/orders/{invalidOrderId}");
 
             // Assert
             deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
