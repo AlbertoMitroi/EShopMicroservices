@@ -17,7 +17,6 @@ namespace Ordering.Shared
         {
             _sqlContainer = new MsSqlBuilder()
                 .WithImage("mcr.microsoft.com/mssql/server:2022-CU15-GDR1-ubuntu-22.04")
-                .WithExposedPort("1435")
                 .Build();
         }
 
@@ -37,13 +36,6 @@ namespace Ordering.Shared
                     var connectionString = _sqlContainer.GetConnectionString();
                     options.UseSqlServer(connectionString);
                 });
-
-                //var serviceProvider = services.BuildServiceProvider();
-                //using (var scope = serviceProvider.CreateScope())
-                //{
-                //    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                //    db.Database.EnsureCreated();
-                //}
             });
         }
 
@@ -51,6 +43,7 @@ namespace Ordering.Shared
         {
             await _sqlContainer.StartAsync();
         }
+
         async Task IAsyncLifetime.DisposeAsync()
         {
             await _sqlContainer.StopAsync();
