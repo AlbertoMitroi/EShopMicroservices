@@ -89,3 +89,32 @@ jobs:
       - name: Test
         run: dotnet test ${{ matrix.service.test_project }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity ${{ env.TEST_VERBOSITY }} --collect:"Code Coverage;Format=${{ env.TEST_COVERAGE_FORMAT }};CoverageFileName=${{ env.TEST_COVERAGE_FILE }}" --results-directory ${{ env.TEST_COVERAGE_DIR }}
   
+  run-integration-tests:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        service:
+            - { name: "Basket", test_project: "./src/Tests/Services/Basket/Basket.Api.IntegrationTests/Basket.Api.IntegrationTests.csproj" }
+            - { name: "Basket", test_project: "./src/Tests/Services/Ordering/Ordering.Application.IntegrationTests/Ordering.Application.IntegrationTests.csproj" }
+            - { name: "Basket", test_project: "./src/Tests/Services/Ordering/Ordering/Ordering.API.IntegrationTest/Ordering.API.IntegrationTest.csproj" }
+    needs:
+      - linux-build
+      - docker-build
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-restore
+
+      - name: Test
+        run: dotnet test ${{ matrix.service.test_project }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity ${{ env.TEST_VERBOSITY }} --collect:"Code Coverage;Format=${{ env.TEST_COVERAGE_FORMAT }};CoverageFileName=${{ env.TEST_COVERAGE_FILE }}" --results-directory ${{ env.TEST_COVERAGE_DIR }}
+       
