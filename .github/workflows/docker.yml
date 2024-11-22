@@ -20,8 +20,8 @@ jobs:
             - { name: "Catalog", context: "./src", dockerfile: "./src/Services/Catalog/Catalog.API/Dockerfile", repository: "catalog" }
             - { name: "Discount", context: "./src", dockerfile: "./src/Services/Discount/Discount.Grpc/Dockerfile", repository: "discount" }
             - { name: "Ordering", context: "./src", dockerfile: "./src/Services/Ordering/Ordering.API/Dockerfile", repository: "ordering" }
-            - { name: "YarpApiGateway", context: "./src", dockerfile: ".src/ApiGateways/YarpApiGateway/Dockerfile", repository: "yarpapigateway" }
-            - { name: "WebApp", context: "./src", dockerfile: ".src/WebApps/Shopping.Web/Dockerfile", repository: "webapp" }
+            - { name: "YarpApiGateway", context: "./src", dockerfile: "./src/ApiGateways/YarpApiGateway/Dockerfile", repository: "yarpapigateway" }
+            - { name: "WebApp", context: "./src", dockerfile: "./src/WebApps/Shopping.Web/Dockerfile", repository: "webapp" }
     steps:
     - name: Checkout Repository Code
       uses: actions/checkout@v4
