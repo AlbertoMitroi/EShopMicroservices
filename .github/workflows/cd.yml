@@ -36,6 +36,7 @@ jobs:
       IMAGE: ${{ vars.ACR_URL }}/${{ vars.REPOSITORY }}-${{ matrix.service.repository }}:${{ github.event.inputs.version }}
       DOTNET_VERSION: 8.0.205
       DOTNET_CONFIGURATION: "Release"
+      DOTNET_INSTALL_DIR: "~/tools/dotnet"
       
     steps:
       - name: Validate version
@@ -45,14 +46,12 @@ jobs:
 
       - name: Checkout Repository Code
         uses: actions/checkout@v4
-        
-      - name: Setup .NET SDK
-        run: |
-          sudo mkdir -p /usr/share/dotnet
-          sudo chown $(whoami) /usr/share/dotnet
-          wget https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-8.0.205-linux-x64-binaries
-          sudo dpkg -i dotnet-sdk-8.0.205-linux-x64.deb
-      
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
       - name: Restore dependencies
         run: dotnet restore ${{ matrix.service.startup_project }}
     
