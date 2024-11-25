@@ -25,12 +25,12 @@ jobs:
     strategy:
       matrix:
         service:
-          - { name: "Basket", startup_project: "./src/Services/Basket/Basket.Api", repository: "basket", azure_webapp: "app-basket-gwc", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_BASKET" }
-          - { name: "Catalog", startup_project: "./src/Services/Catalog/Catalog.API", repository: "catalog", azure_webapp: "app-catalog-gwc", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_CATALOG" }
-          - { name: "Discount", startup_project: "./src/Services/Discount/Discount.Grpc", repository: "discount", azure_webapp: "app-discount-gwc", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_DISCOUNT" }
-          - { name: "Ordering", startup_project: "./src/Services/Ordering/Ordering.API", repository: "ordering", azure_webapp: "app-ordering-gwc", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_ORDERING" }
-          - { name: "YarpApiGateway", startup_project: "./src/ApiGateways/YarpApiGateway", repository: "yarpapigateway", azure_webapp: "app-yarpapigateway-gwc", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_YARPAPIGATEWAY" }
-          - { name: "WebApp", startup_project: "./src/WebApps/Shopping.Web", repository: "webapp", azure_webapp: "app-webapp-gwc", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_WEBAPP" }  
+          - { name: "Basket", startup_project: "./src/Services/Basket/Basket.Api", repository: "basket", azure_webapp: "basket-app-service", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_BASKET" }
+          - { name: "Catalog", startup_project: "./src/Services/Catalog/Catalog.API", repository: "catalog", azure_webapp: "catalog-app-service", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_CATALOG" }
+          - { name: "Discount", startup_project: "./src/Services/Discount/Discount.Grpc", repository: "discount", azure_webapp: "discount-app-service", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_DISCOUNT" }
+          - { name: "Ordering", startup_project: "./src/Services/Ordering/Ordering.API", repository: "ordering", azure_webapp: "ordering-app-service", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_ORDERING" }
+          - { name: "YarpApiGateway", startup_project: "./src/ApiGateways/YarpApiGateway", repository: "yarpapigateway", azure_webapp: "gateway-app-service", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_YARPAPIGATEWAY" }
+          - { name: "WebApp", startup_project: "./src/WebApps/Shopping.Web", repository: "webapp", azure_webapp: "webapp-app-service", database_migrations: "false", publish_profile_secret: "AZURE_WEBAPP_PUBLISH_PROFILE_WEBAPP" }  
     
     env:
       IMAGE: ${{ vars.ACR_URL }}/${{ vars.REPOSITORY }}-${{ matrix.service.repository }}:${{ github.event.inputs.version }}
@@ -46,14 +46,12 @@ jobs:
 
       - name: Checkout Repository Code
         uses: actions/checkout@v4
-        
-      - name: Setup .NET SDK
-        run: |
-          sudo mkdir -p /usr/share/dotnet
-          sudo chown $(whoami) /usr/share/dotnet
-          wget https://dotnet.microsoft.com/download/dotnet/thank-you/sdk-8.0.205-linux-x64-binaries
-          sudo dpkg -i dotnet-sdk-8.0.205-linux-x64.deb
-      
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
       - name: Restore dependencies
         run: dotnet restore ${{ matrix.service.startup_project }}
     
