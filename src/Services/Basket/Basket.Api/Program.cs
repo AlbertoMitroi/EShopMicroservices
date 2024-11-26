@@ -2,6 +2,7 @@ using Discount.Grpc;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using BuildingBlocks.Messaging.MassTransit;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,13 +26,36 @@ builder.Services.AddMarten(opts =>
 }).UseLightweightSessions();
 
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
-builder.Services.Decorate<IBasketRepository, CachedBasketRepository>();
+builder.Services.Decorate<IBasketRepository, RedisCacheRepository>();
 
-builder.Services.AddStackExchangeRedisCache(options =>
+var redisConfig = builder.Configuration.GetSection("Redis"); 
+var redisHost = redisConfig.GetValue<string>("RedisUrl"); 
+var redisPort = redisConfig.GetValue<string>("Port"); 
+var redisPassword = redisConfig.GetValue<string>("Password"); 
+var redisSsl = redisConfig.GetValue<bool>("SSL");
+var redisAbortOnConnectFail = redisConfig.GetValue<bool>("AbortOnConnectFail");
+
+var configOptions = new ConfigurationOptions
 {
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
-    //options.InstanceName = "Basket";
-});
+    Password = redisPassword,
+    Ssl = redisSsl,
+    AbortOnConnectFail = redisAbortOnConnectFail,
+    ConnectTimeout = 10000
+};
+
+configOptions.EndPoints.Add(redisHost!, int.Parse(redisPort!));
+
+try
+{
+    var multiplexer = ConnectionMultiplexer.Connect(configOptions);
+    builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error connecting to Redis: {ex.Message}");
+}
+
+builder.Logging.AddFilter("StackExchange.Redis", LogLevel.Debug);
 
 //Grpc Services
 builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
@@ -59,7 +83,7 @@ builder.Logging.AddFilter("Npgsql", LogLevel.Warning); // set Npgsql to warning
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(builder.Configuration.GetConnectionString("Database")!)
-    .AddRedis(builder.Configuration.GetConnectionString("Redis")!);
+    .AddRedis($"{redisHost}:{redisPort},password={redisPassword},ssl=True,abortConnect=False");
 
 var app = builder.Build();
 
