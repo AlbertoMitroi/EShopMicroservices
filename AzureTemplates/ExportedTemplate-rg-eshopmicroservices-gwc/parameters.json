@@ -1,0 +1,66 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_app_basket_gwc_name": {
+            "value": null
+        },
+        "sites_app_webapp_gwc_name": {
+            "value": null
+        },
+        "sites_app_catalog_gwc_name": {
+            "value": null
+        },
+        "Redis_redis_test_gwc_name": {
+            "value": null
+        },
+        "sites_app_discount_gwc_name": {
+            "value": null
+        },
+        "sites_app_ordering_gwc_name": {
+            "value": null
+        },
+        "Redis_redis_basketapp_gwc_name": {
+            "value": null
+        },
+        "sites_app_yarpapigateway_gwc_name": {
+            "value": null
+        },
+        "storageAccounts_abtstoragegwc_name": {
+            "value": null
+        },
+        "serverfarms_asp_eshopmicroervices_gwc_001_name": {
+            "value": null
+        },
+        "privateEndpoints_privateendpoint_redis_name": {
+            "value": null
+        },
+        "Redis_redis_eshopmicroservices_basket_gwc_name": {
+            "value": null
+        },
+        "components_appi_eshopmicroservices_gwc_name": {
+            "value": null
+        },
+        "flexibleServers_psql_catalog_gwc_name": {
+            "value": null
+        },
+        "privateEndpoints_privateendpoint_blob_storage_name": {
+            "value": null
+        },
+        "virtualNetworks_vnet_eshopmicroservices16_gwc_name": {
+            "value": null
+        },
+        "actionGroups_Application_Insights_Smart_Detection_name": {
+            "value": null
+        },
+        "systemTopics_abtstoragegwc_3093c45d_8dba_4b22_9432_0e1627fca917_name": {
+            "value": null
+        },
+        "privateDnsZones_psql_catalog_gwc_private_postgres_database_azure_com_name": {
+            "value": null
+        },
+        "workspaces_DefaultWorkspace_a84ed401_100e_4f5e_9462_a36e5a9ec843_DEWC_externalid": {
+            "value": null
+        }
+    }
+}

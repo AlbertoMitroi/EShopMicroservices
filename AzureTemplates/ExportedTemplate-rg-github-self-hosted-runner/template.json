@@ -1,0 +1,379 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_vm_github_runner_name": {
+            "defaultValue": "vm-github-runner",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_github_runner_name": {
+            "defaultValue": "vnet-github-runner",
+            "type": "String"
+        },
+        "publicIPAddresses_ip_vm_github_runner_name": {
+            "defaultValue": "ip-vm-github-runner",
+            "type": "String"
+        },
+        "sshPublicKeys_ssh_vm_github_runner_key_name": {
+            "defaultValue": "ssh-vm-github-runner-key",
+            "type": "String"
+        },
+        "networkInterfaces_vm_github_runner464_z3_name": {
+            "defaultValue": "vm-github-runner464_z3",
+            "type": "String"
+        },
+        "networkSecurityGroups_vm_github_runner_nsg_name": {
+            "defaultValue": "vm-github-runner-nsg",
+            "type": "String"
+        },
+        "schedules_shutdown_computevm_vm_github_runner_name": {
+            "defaultValue": "shutdown-computevm-vm-github-runner",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/sshPublicKeys",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('sshPublicKeys_ssh_vm_github_runner_key_name')]",
+            "location": "northeurope",
+            "tags": {
+                "Owner": "Alberto"
+            },
+            "properties": {
+                "publicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC4dxvSibfSY5yVZ1ZePOE1pIzR1GBT3Q30878lh/Flw3XfBMSB0KfXDdPjd5u+VQaimdYymDTh7QnZ92wLnMkqp0aS2NqOzfYj6O9ZWo2mrl2OvptRa/bo3VYJ2TIPptZfqUmRETQPUF7idIs/yr9fFP82up8aBZZ/pzjHw2526EBshBCI0q4JRZm43sfNK+kzbu/LVrXzXyU7kkZxZUUqqZ/IMwxybTi9PjxKfB11yYPJxmjwDdpUXGFxF90n5CSzMnLmh8vZIxL9ukrsMZXk1yK3P5vm95InjU10wHF6Cp2qMWYOMqF+AJ4SggJ71vJe3HRcln5Q1MM46pZnKtbc1BlR454Yak6BiJ5xq4oEth94GJEf9VsqsB9ZCAOdOGHzDH1x8MEbiY4pAdJxEpy8YOjw6gpId90fbz/6Rryu49TNlrxWNVVqOk5oJLoE2+k+7wXktLvZXzY9+goXKUUggPKjvQnpRdIUG9fEh++FKpWILdY6RlRy7JqRLoNcCpE= generated-by-azure"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2024-01-01",
+            "name": "[parameters('networkSecurityGroups_vm_github_runner_nsg_name')]",
+            "location": "northeurope",
+            "tags": {
+                "Owner": "Alberto"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_vm_github_runner_nsg_name'), 'SSH')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1001,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "MicrosoftDefenderForCloud-JITRule_1222404744_4258F774E8B84911B5D1659A2CF79E2C",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_vm_github_runner_nsg_name'), 'MicrosoftDefenderForCloud-JITRule_1222404744_4258F774E8B84911B5D1659A2CF79E2C')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "MDC JIT Network Access rule for policy 'default' of VM 'vm-github-runner'.",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "10.0.0.4",
+                            "access": "Deny",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2024-01-01",
+            "name": "[parameters('publicIPAddresses_ip_vm_github_runner_name')]",
+            "location": "northeurope",
+            "tags": {
+                "Owner": "Alberto"
+            },
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "zones": [
+                "3"
+            ],
+            "properties": {
+                "ipAddress": "72.145.4.111",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2024-01-01",
+            "name": "[parameters('virtualNetworks_vnet_github_runner_name')]",
+            "location": "northeurope",
+            "tags": {
+                "Owner": "Alberto"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_github_runner_name'), 'default')]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-07-01",
+            "name": "[parameters('virtualMachines_vm_github_runner_name')]",
+            "location": "northeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_vm_github_runner464_z3_name'))]"
+            ],
+            "tags": {
+                "Owner": "Alberto"
+            },
+            "zones": [
+                "3"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2s"
+                },
+                "additionalCapabilities": {
+                    "hibernationEnabled": false
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "ubuntu-24_04-lts",
+                        "sku": "server",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "[concat(parameters('virtualMachines_vm_github_runner_name'), '_OsDisk_1_ec7d9ee840654d57b0d699e7e75fe28a')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_vm_github_runner_name'), '_OsDisk_1_ec7d9ee840654d57b0d699e7e75fe28a'))]"
+                        },
+                        "deleteOption": "Delete"
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_vm_github_runner_name')]",
+                    "adminUsername": "azureuser",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "/home/azureuser/.ssh/authorized_keys",
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC4dxvSibfSY5yVZ1ZePOE1pIzR1GBT3Q30878lh/Flw3XfBMSB0KfXDdPjd5u+VQaimdYymDTh7QnZ92wLnMkqp0aS2NqOzfYj6O9ZWo2mrl2OvptRa/bo3VYJ2TIPptZfqUmRETQPUF7idIs/yr9fFP82up8aBZZ/pzjHw2526EBshBCI0q4JRZm43sfNK+kzbu/LVrXzXyU7kkZxZUUqqZ/IMwxybTi9PjxKfB11yYPJxmjwDdpUXGFxF90n5CSzMnLmh8vZIxL9ukrsMZXk1yK3P5vm95InjU10wHF6Cp2qMWYOMqF+AJ4SggJ71vJe3HRcln5Q1MM46pZnKtbc1BlR454Yak6BiJ5xq4oEth94GJEf9VsqsB9ZCAOdOGHzDH1x8MEbiY4pAdJxEpy8YOjw6gpId90fbz/6Rryu49TNlrxWNVVqOk5oJLoE2+k+7wXktLvZXzY9+goXKUUggPKjvQnpRdIUG9fEh++FKpWILdY6RlRy7JqRLoNcCpE= generated-by-azure"
+                                }
+                            ]
+                        },
+                        "provisionVMAgent": true,
+                        "patchSettings": {
+                            "patchMode": "ImageDefault",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "securityProfile": {
+                    "uefiSettings": {
+                        "secureBootEnabled": true,
+                        "vTpmEnabled": true
+                    },
+                    "securityType": "TrustedLaunch"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_vm_github_runner464_z3_name'))]",
+                            "properties": {
+                                "deleteOption": "Detach"
+                            }
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "microsoft.devtestlab/schedules",
+            "apiVersion": "2018-09-15",
+            "name": "[parameters('schedules_shutdown_computevm_vm_github_runner_name')]",
+            "location": "northeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_github_runner_name'))]"
+            ],
+            "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "dailyRecurrence": {
+                    "time": "1800"
+                },
+                "timeZoneId": "GTB Standard Time",
+                "notificationSettings": {
+                    "status": "Disabled",
+                    "timeInMinutes": 30,
+                    "notificationLocale": "en"
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_vm_github_runner_name'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-01-01",
+            "name": "[concat(parameters('networkSecurityGroups_vm_github_runner_nsg_name'), '/MicrosoftDefenderForCloud-JITRule_1222404744_4258F774E8B84911B5D1659A2CF79E2C')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vm_github_runner_nsg_name'))]"
+            ],
+            "properties": {
+                "description": "MDC JIT Network Access rule for policy 'default' of VM 'vm-github-runner'.",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "22",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "10.0.0.4",
+                "access": "Deny",
+                "priority": 1000,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2024-01-01",
+            "name": "[concat(parameters('networkSecurityGroups_vm_github_runner_nsg_name'), '/SSH')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vm_github_runner_nsg_name'))]"
+            ],
+            "properties": {
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "22",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 1001,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2024-01-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_github_runner_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_github_runner_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.0.0/24",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2024-01-01",
+            "name": "[parameters('networkInterfaces_vm_github_runner464_z3_name')]",
+            "location": "northeurope",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip_vm_github_runner_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_github_runner_name'), 'default')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vm_github_runner_nsg_name'))]"
+            ],
+            "tags": {
+                "Owner": "Alberto"
+            },
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_vm_github_runner464_z3_name')), '/ipConfigurations/ipconfig1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "10.0.0.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip_vm_github_runner_name'))]",
+                                "properties": {
+                                    "deleteOption": "Detach"
+                                }
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_github_runner_name'), 'default')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vm_github_runner_nsg_name'))]"
+                },
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        }
+    ]
+}
